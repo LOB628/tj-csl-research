@@ -3,6 +3,9 @@ import json
 import re
 import functools
 import os.path
+
+#for types:
+import _io
 """
 file path
 file
@@ -14,26 +17,20 @@ dict
 def unpack_overloader_decorator(func):
     @functools.wraps(func)
     def new(data,*args,**kwargs):
-        #match(type(data)) pytorch stable does not support 3.10
-        t=type(data)
-        file_opened=False
-        if t is str and os.path.exists(t):#if it is a file path:
-            file=open(t,"r")
-            file_opened=True
-        if t is _io.TextIOWrapper:#if it is a file
-            if file_opened:
-                t=file.read()
-                file.close()
-            else:
-                origin=file.tell()
-                t=file.read()
-                file.seek(origin)
-        if t is str:
+        file=None
+        if type(data) is str and os.path.exists(data):#if it is a file path:
+            file=open(data,"r")
+        if type(data) is _io.TextIOWrapper: #if it is a file        
+            file=data
+        if file:
+            data=file.read()
+            file.close()
+        if type(data) is str:
             try:
-                t=json.loads(t)
+                data=json.loads(data)
             except ValueError:
-                raise Exception(f"Invalid json data:\n{t}")
-        if t is dict:
+                raise Exception(f"Invalid json data:\n{data}")
+        if type(data) is dict:
             return func(data,*args,**kwargs)
         else: 
             raise Exception("Invalid Argument type")
