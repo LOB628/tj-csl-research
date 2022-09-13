@@ -6,14 +6,15 @@ import os.path
 
 #for types:
 import _io
+#doing it with "overloading" 
+#allows function to take
 """
 file path
 file
 str
 dict
 """
-
-#doing it with "overloading"
+#args
 def unpack_overloader_decorator(func):
     @functools.wraps(func)
     def new(data,*args,**kwargs):
@@ -36,13 +37,15 @@ def unpack_overloader_decorator(func):
             raise Exception("Invalid Argument type")
     return new
 @unpack_overloader_decorator     
-def unpack_coco(coco_dict:dict)->pandas.DataFrame:
+def unpack_coco(coco_dict:dict)->(dict,dict,dict):
     info=coco_dict["info"]
     categories=coco_dict["categories"]
     annotations_with_img={ annotation["image_id"]:annotation for annotation in coco_dict["annotations"]}
     tempimages={image["id"]:image for image in coco_dict["images"]}
     for id in annotations_with_img:
         annotations_with_img[id].update(tempimages[id])
+        annotations_with_img[id].pop("id")
+        annotations_with_img[id].pop("image_id")
     return info,categories,annotations_with_img
 
 formats={"coco":unpack_coco}
