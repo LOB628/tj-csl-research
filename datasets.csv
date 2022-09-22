@@ -1,0 +1,2 @@
+Name,PATH_URL,DATASET_DIR,ANNOTATIONS_DIR
+snapshot-kgalagadi https://lilablobssc.blob.core.windows.net/snapshot-safari/KGA/ KGA_S1.lila.zip SnapshotKgalagadi_S1_v1.0.json.zip
