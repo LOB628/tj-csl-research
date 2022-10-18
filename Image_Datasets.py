@@ -25,7 +25,7 @@ class Images_Dataset(Dataset):
       #return transformed image,label
       return self.transformation_function(Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}")),self.df.iloc[index][self.class_name]
   def __len__(self):
-      return len(df.index)#rowcount
+      return len(self.df.index)#rowcount
 class Images_Dataset_SAVE(Images_Dataset):
     def __init__(self, df,transformation_function,file_path="",class_name="category_id",file_extension=None,save_to=None,use_file_path_in_save_to=False):
       """
