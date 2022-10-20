@@ -27,11 +27,11 @@ class Images_Dataset(Dataset):
   def __len__(self):
       return len(self.df.index)#rowcount
 class Images_Dataset_SAVE(Images_Dataset):
-    def __init__(self, df,transformation_function,file_path="",class_name="category_id",file_extension=None,save_to=None,use_file_path_in_save_to=False):
+    def __init__(self, df,transformation_function,file_path="",class_name="category_id",file_extension="",save_to=None,use_file_path_in_save_to=False):
       """
       
-      access at file_path/file_name
-      save at save_to/file_name
+      initial access at file_path/file_name
+      save at save_to/index
                                remove file extension if file_extension is not None
                                if so replace with .file_extension
       if use_file_path_in_save_to
@@ -43,17 +43,21 @@ class Images_Dataset_SAVE(Images_Dataset):
       super().__init__(df,transformation_function,file_path=file_path,class_name=class_name)
       if save_to is None:
         self.save_to = file_path
+      else:
+        self.save_to=save_to
       if use_file_path_in_save_to:
          self.save_to += file_path
       self.saved=dict()
-       
+      self.file_extension=file_extension
     def load(self,file_name):
-      return torch.load(f"{self.file_path}/{file_name}")  
+      return torch.load(f"{self.save_to}/{file_name}.{self.file_extension}")  
     def save(self,obj,file_name):
-      return torch.save(obj,f"{self.save_to}/{file_name}")
+      return torch.save(obj,f"{self.save_to}/{file_name}.{self.file_extension}")
     def __getitem__(self,index):    
-      i=self.df.iloc[index]["file_name"]
       if index not in self.saved:
-        self.saved[index]=i
+       # i=self.df.iloc[index]["file_name"]
+       # self.saved[index]=i
         self.save(super().__getitem__(index)[0],index)
-      return self.load(i),self.df.iloc[index]["category_id"]
+      #else:
+      #  i=self.saved[index]
+      return self.load(index),self.df.iloc[index]["category_id"]
