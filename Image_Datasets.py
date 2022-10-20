@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import datasets
 from PIL import Image
+import os
 class Images_Dataset(Dataset):
   """
   Takes a pandas dataframe that has filenames for images and labels
@@ -27,11 +28,12 @@ class Images_Dataset(Dataset):
   def __len__(self):
       return len(self.df.index)#rowcount
 class Images_Dataset_SAVE(Images_Dataset):
-    def __init__(self, df,transformation_function,file_path="",class_name="category_id",file_extension="",save_to=None,use_file_path_in_save_to=False):
+    def __init__(self, df,transformation_function,file_path="",class_name="category_id",file_extension="",save_to=None,use_file_path_in_save_to=False,del_orig_after_saved=False):
       """
       
-      initial access at file_path/file_name
-      save at save_to/index
+      access at file_path/file_name
+      save at save_to/file_name
+      load at save_to/file_name
                                remove file extension if file_extension is not None
                                if so replace with .file_extension
       if use_file_path_in_save_to
@@ -48,6 +50,7 @@ class Images_Dataset_SAVE(Images_Dataset):
       if use_file_path_in_save_to:
          self.save_to += file_path
       self.saved=dict()
+      self.del_orig_after_saved=del_orig_after_saved
       self.file_extension=file_extension
     def load(self,file_name):
       return torch.load(f"{self.save_to}/{file_name}.{self.file_extension}")  
@@ -55,9 +58,11 @@ class Images_Dataset_SAVE(Images_Dataset):
       return torch.save(obj,f"{self.save_to}/{file_name}.{self.file_extension}")
     def __getitem__(self,index):    
       if index not in self.saved:
-       # i=self.df.iloc[index]["file_name"]
-       # self.saved[index]=i
-        self.save(super().__getitem__(index)[0],index)
-      #else:
-      #  i=self.saved[index]
-      return self.load(index),self.df.iloc[index]["category_id"]
+        i=self.df.iloc[index]["file_name"]
+        self.saved[index]=i
+        self.save(super().__getitem__(index)[0],i)
+        if self.del_orig_after_saved:
+          os.remove(f"{self.file_path}/{i}")
+      else:
+        i=self.saved[index]
+      return self.load(i),self.df.iloc[index]["category_id"]
