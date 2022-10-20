@@ -52,7 +52,7 @@ class Images_Dataset_SAVE(Images_Dataset):
     def save(self,obj,file_name):
       return torch.save(obj,f"{self.save_to}/{file_name}")
     def __getitem__(self,index):    
-      i=self.df.iat[index,"file_name"]
+      i=self.df.iloc[index]["file_name"]
       if index not in self.saved:
         self.saved[index]=i
         self.save(super().__getitem__(index)[0],index)
