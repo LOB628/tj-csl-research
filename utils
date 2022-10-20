@@ -1,0 +1,4 @@
+def ignore_files(dirname,lsdir):
+  return [f for f in lsdir if os.path.isfile(f) or f.startswith(".")]
+def copy_folder_structure(name):
+  shutil.copytree(f"{name}-images",f"{name}-images-processed",ignore=ignore_files)
