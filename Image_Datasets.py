@@ -56,4 +56,4 @@ class Images_Dataset_SAVE(Images_Dataset):
       if index not in self.saved:
         self.saved[index]=i
         self.save(super().__getitem__(index)[0],index)
-      return self.load(i),self.df.iat[index,"category_id"]
+      return self.load(i),self.df.iloc[index]["category_id"]
