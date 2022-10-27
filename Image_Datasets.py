@@ -2,7 +2,6 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import datasets
 from PIL import Image
-import os
 class Images_Dataset(Dataset):
   """
   Takes a pandas dataframe that has filenames for images and labels
