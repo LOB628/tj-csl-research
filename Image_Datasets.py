@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import datasets
 from PIL import Image
+from os import remove
 class Images_Dataset(Dataset):
   """
   Takes a pandas dataframe that has filenames for images and labels
@@ -61,7 +62,7 @@ class Images_Dataset_SAVE(Images_Dataset):
         self.saved[index]=i
         self.save(super().__getitem__(index)[0],i)
         if self.del_orig_after_saved:
-          os.remove(f"{self.file_path}/{i}")
+          remove(f"{self.file_path}/{i}")
       else:
         i=self.saved[index]
       return self.load(i),self.df.iloc[index]["category_id"]
