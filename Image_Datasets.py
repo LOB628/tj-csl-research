@@ -29,7 +29,7 @@ class Images_Dataset(Dataset):
           raise AttributeError(f"missing class label - {class_name}")
   def __getitem__(self,index):
       #return transformed image,label
-      return self.transformation_function(Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}")),toLabel(self.df.iloc[index][self.class_name]
+      return self.transformation_function(Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}")),toLabel(self.df.iloc[index][self.class_name],self.num_categories)
   def __len__(self):
       return len(self.df.index)#rowcount
 class Images_Dataset_SAVE(Images_Dataset):
