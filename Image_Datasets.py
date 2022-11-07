@@ -3,16 +3,21 @@ from torch.utils.data import Dataset
 from torchvision import datasets
 from PIL import Image
 from os import remove
+def toLabel(element,num_categories):
+  ret=torch.zeros(num_categories)
+  ret[element]=1
+  return ret
 class Images_Dataset(Dataset):
   """
   Takes a pandas dataframe that has filenames for images and labels
    an image transformation function to be applied when getting a value
    access at file_path/file_name
   """
-  def __init__(self, df,transformation_function,file_path="",class_name="category_id"):
+  def __init__(self, df,transformation_function,num_categories,file_path="",class_name="category_id"):
       self._validate(df,class_name)
       self.df = df
       self.transformation_function = transformation_function
+      self.num_categories=num_categories
       self.file_path=file_path
       self.class_name=class_name
   @staticmethod
@@ -24,11 +29,11 @@ class Images_Dataset(Dataset):
           raise AttributeError(f"missing class label - {class_name}")
   def __getitem__(self,index):
       #return transformed image,label
-      return self.transformation_function(Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}")),self.df.iloc[index][self.class_name]
+      return self.transformation_function(Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}")),toLabel(self.df.iloc[index][self.class_name]
   def __len__(self):
       return len(self.df.index)#rowcount
 class Images_Dataset_SAVE(Images_Dataset):
-    def __init__(self, df,transformation_function,file_path="",class_name="category_id",file_extension="",save_to=None,use_file_path_in_save_to=False,del_orig_after_saved=False):
+    def __init__(self, df,transformation_function,num_categories,file_path="",class_name="category_id",file_extension="",save_to=None,use_file_path_in_save_to=False,del_orig_after_saved=False):
       """
       
       access at file_path/file_name
@@ -42,7 +47,7 @@ class Images_Dataset_SAVE(Images_Dataset):
       Uses torch.save and torch.load
       if saved as a pytorch tensor extension should be pt
       """
-      super().__init__(df,transformation_function,file_path=file_path,class_name=class_name)
+      super().__init__(df,transformation_function,num_categories,file_path=file_path,class_name=class_name)
       if save_to is None:
         self.save_to = file_path
       else:
@@ -65,4 +70,4 @@ class Images_Dataset_SAVE(Images_Dataset):
           remove(f"{self.file_path}/{i}")
       else:
         i=self.saved[index]
-      return self.load(i),self.df.iloc[index]["category_id"]
+      return self.load(i),toLabel(self.df.iloc[index][self.class_name],self.num_categories)
