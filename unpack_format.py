@@ -54,7 +54,8 @@ def mega_entry_to_dict(entry,threshold=0,output=None,coco_df=None):
     if detection['conf']>threshold:
       output[(entry.name,i)]=pd.concat([pd.Series({'conf':detection['conf'],'bbox':detection['bbox'],'mega_category':detection["category"]}),coco_df.loc[entry.name]])
       i+=1      
-def unpack_mega(annotations_with_img,WITDH,HEIGHT):
+@unpack_overload_decorator
+def unpack_mega(annotations_with_img,WITDH=None,HEIGHT=None):
     annotations_with_img={ annotation["file"]:annotation for annotation in temp["images"]}
     raw_df_mega=pd.DataFrame.from_dict(annotations_with_img,orient="index")
     raw_df_mega['file_name']=raw_df_mega['file'].apply(lambda s:"/".join(s.split('/')[1:]))
@@ -68,7 +69,7 @@ def unpack_mega(annotations_with_img,WITDH,HEIGHT):
       raw_df_mega_expanded['converted_box']=raw_df_mega_expanded['converted_box'].apply(lambda box:[box[0]*WIDTH,box[1]*HEIGHT,box[2]*WIDTH,box[3]*HEIGHT])
       df=raw_df_mega_expanded.drop('bbox',axis=1)
     return df
-formats={"coco":unpack_coco}
+formats={"coco":unpack_coco,"mega":unpack_mega}
 def test():
     return formats
 if __name__ == "__main__":
