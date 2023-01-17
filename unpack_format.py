@@ -55,7 +55,7 @@ def mega_entry_to_dict(entry,threshold=0,output=None,coco_df=None):
       output[(entry.name,i)]=pd.concat([pd.Series({'conf':detection['conf'],'bbox':detection['bbox'],'mega_category':detection["category"]}),coco_df.loc[entry.name]])
       i+=1      
 @unpack_overloader_decorator
-def unpack_mega(data,df_imgs=None,WITDH=None,HEIGHT=None):
+def unpack_mega(data,df_imgs=None,WIDTH=None,HEIGHT=None):
     annotations_with_img={ annotation["file"]:annotation for annotation in data["images"]}
     raw_df_mega=pd.DataFrame.from_dict(annotations_with_img,orient="index")
     raw_df_mega['file_name']=raw_df_mega['file'].apply(lambda s:"/".join(s.split('/')[1:]))
