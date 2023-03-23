@@ -74,6 +74,15 @@ def unpack_mega(data,df_imgs=None,WIDTH=None,HEIGHT=None):
 formats={"coco":unpack_coco,"mega":unpack_mega}
 def test():
     return formats
+def snapshot_safari_paths_from_name(name,name_abbrev):#for working with kaggle
+    datapath=f'../input/snapshot-{name}/'
+    cameras=f'{name_abbrev}_S1.lila/{name_abbrev}_S1'
+    #(2*path)[:-1] b/c unzipping results in the file being placed under a folder of its name
+    metadata=(2*f'Snapshot{name[0].upper()+name[1:]}_S1_v1.0.json/')[:-1]
+    mega_A=(2*f'snapshot-safari_{name_abbrev}_mdv5a.0.0_results.json/')[:-1]
+    mega_B=(2*f'snapshot-safari_{name_abbrev}_mdv5b.0.0_results.json/')[:-1]
+    return datapath,cameras,metadata,mega_A,mega_B
+
 if __name__ == "__main__":
     #expecting inputs as format value
     import sys
