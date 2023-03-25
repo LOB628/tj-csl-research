@@ -75,7 +75,7 @@ formats={"coco":unpack_coco,"mega":unpack_mega}
 def test():
     return formats
 def snapshot_safari_paths_from_name(name,name_abbrev):#for working with kaggle
-    datapath=f'../input/snapshot-{name}/'
+    datapath=f'kaggle/input/snapshot-{name}/'
     cameras=f'{name_abbrev}_S1.lila/{name_abbrev}_S1'
     #(2*path)[:-1] b/c unzipping results in the file being placed under a folder of its name
     metadata=(2*f'Snapshot{name[0].upper()+name[1:]}_S1_v1.0.json/')[:-1]
