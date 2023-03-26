@@ -3,16 +3,25 @@ from torch.utils.data import Dataset
 from torchvision import datasets
 from PIL import Image
 from os import remove
+import pandas as pd
+
+
+
+def general_transform_factory(pretensor_transforms_all,posttensor_transforms_all):
+  def general_transform(pretensor_transforms,posttensor_transforms):
+    return torchvision.transforms.Compose([*pretensor_transforms_all,*pretensor_transforms,ToTensor(),posttensor_transforms_all,*posttensor_transforms])
+
 class Images_Dataset(Dataset):
   """
   Takes a pandas dataframe that has filenames for images and labels
    an image transformation function to be applied when getting a value
    access at file_path/file_name
   """
-  def __init__(self, df,transformation_function,file_path="",class_name="category_id"):
+  def __init__(self, df,file_path="",class_name="category_id",pretensor_transforms_all=lambda x:x,posttensor_transforms_all=lambda x:x):
       self._validate(df,class_name)
       self.df = df
-      self.transformation_function = transformation_function
+      self.transformation_function = general_transform_factory(pretensor_transforms_all,posttensor_transforms_all)
+      self.transformation_function_default = self.transformation_function([],[])
       self.file_path=file_path
       self.class_name=class_name
   @staticmethod
@@ -24,7 +33,13 @@ class Images_Dataset(Dataset):
           raise AttributeError(f"missing class label - {class_name}")
   def __getitem__(self,index):
       #return transformed image,label
-      return self.transformation_function(Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}")),self.df.iloc[index][self.class_name]
+      _=df.iloc[index]["transforms"]
+      img=Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}"),self.df.iloc[index][self.class_name]
+      if _==None:
+        return self.transformation_function_default(img)
+      pre,post=_
+      return self.transformation_function(pre,post)(img)
+
   def __len__(self):
       return len(self.df.index)#rowcount
 class Images_Dataset_SAVE(Images_Dataset):
@@ -66,3 +81,4 @@ class Images_Dataset_SAVE(Images_Dataset):
       else:
         i=self.saved[index]
       return self.load(i),self.df.iloc[index][self.class_name]
+
