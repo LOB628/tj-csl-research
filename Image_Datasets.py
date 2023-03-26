@@ -43,7 +43,7 @@ class Images_Dataset(Dataset):
   def __len__(self):
       return len(self.df.index)#rowcount
 class Images_Dataset_SAVE(Images_Dataset):
-    def __init__(self, df,transformation_function,file_path="",class_name="category_id",file_extension="",save_to=None,use_file_path_in_save_to=False,del_orig_after_saved=False):
+    def __init__(self, df,file_path="",class_name="category_id",file_extension="",save_to=None,use_file_path_in_save_to=False,del_orig_after_saved=False,pretensor_transforms_all=lambda x:x,posttensor_transforms_all=lambda x:x):
       """
       
       access at file_path/file_name
@@ -57,7 +57,7 @@ class Images_Dataset_SAVE(Images_Dataset):
       Uses torch.save and torch.load
       if saved as a pytorch tensor extension should be pt
       """
-      super().__init__(df,transformation_function,file_path=file_path,class_name=class_name)
+      super().__init__(df,file_path=file_path,class_name=class_name,pretensor_transforms_all=pretensor_transforms_all,posttensor_transforms_all=posttensor_transforms_all)
       if save_to is None:
         self.save_to = file_path
       else:
@@ -81,4 +81,8 @@ class Images_Dataset_SAVE(Images_Dataset):
       else:
         i=self.saved[index]
       return self.load(i),self.df.iloc[index][self.class_name]
+    def loopall(self):#process all images
+        for i in len(self):
+            self[i]
+
 
