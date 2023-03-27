@@ -10,7 +10,7 @@ import pandas as pd
 def general_transform_factory(pretensor_transforms_all,posttensor_transforms_all):
   def general_transform(pretensor_transforms,posttensor_transforms):
     return torchvision.transforms.Compose([*pretensor_transforms_all,*pretensor_transforms,ToTensor(),posttensor_transforms_all,*posttensor_transforms])
-
+  return general_transform
 class Images_Dataset(Dataset):
   """
   Takes a pandas dataframe that has filenames for images and labels
