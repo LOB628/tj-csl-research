@@ -2,15 +2,13 @@ import torch
 import torchvision
 from torch.utils.data import Dataset
 from torchvision import datasets
+from torchvision.transforms import ToTensor
 from PIL import Image
 from os import remove
 import pandas as pd
-
-
-
 def general_transform_factory(pretensor_transforms_all,posttensor_transforms_all):
   def general_transform(pretensor_transforms,posttensor_transforms):
-    return torchvision.transforms.Compose([*pretensor_transforms_all,*pretensor_transforms,ToTensor(),posttensor_transforms_all,*posttensor_transforms])
+    return torchvision.transforms.Compose([*pretensor_transforms_all,*pretensor_transforms,ToTensor(),*posttensor_transforms_all,*posttensor_transforms])
   return general_transform
 class Images_Dataset(Dataset):
   """
@@ -35,18 +33,18 @@ class Images_Dataset(Dataset):
   def __getitem__(self,index):
       #return transformed image,label
       _=df.iloc[index]["transforms"]
-      img=Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}"),self.df.iloc[index][self.class_name]
+      img=Image.open(f"{self.file_path}/{self.df.iloc[index]['file_name']}")
       if _==None:
-        return self.transformation_function_default(img)
+        return self.transformation_function_default(img),self.df.iloc[index][self.class_name]
       pre,post=_
-      return self.transformation_function(pre,post)(img)
+      return self.transformation_function(pre,post)(img),self.df.iloc[index][self.class_name]
 
   def __len__(self):
       return len(self.df.index)#rowcount
 class Images_Dataset_SAVE(Images_Dataset):
     def __init__(self, df,file_path="",class_name="category_id",file_extension="",save_to=None,use_file_path_in_save_to=False,del_orig_after_saved=False,pretensor_transforms_all=lambda x:x,posttensor_transforms_all=lambda x:x):
       """
-      
+
       access at file_path/file_name
       save at save_to/file_name
       load at save_to/file_name
@@ -58,6 +56,7 @@ class Images_Dataset_SAVE(Images_Dataset):
       Uses torch.save and torch.load
       if saved as a pytorch tensor extension should be pt
       """
+      df['processed']=False
       super().__init__(df,file_path=file_path,class_name=class_name,pretensor_transforms_all=pretensor_transforms_all,posttensor_transforms_all=posttensor_transforms_all)
       if save_to is None:
         self.save_to = file_path
@@ -65,25 +64,25 @@ class Images_Dataset_SAVE(Images_Dataset):
         self.save_to=save_to
       if use_file_path_in_save_to:
          self.save_to += file_path
-      self.saved=dict()
       self.del_orig_after_saved=del_orig_after_saved
       self.file_extension=file_extension
+      if 'processed' not in df.columns:
+        df['processed']=False
     def load(self,file_name):
       return torch.load(f"{self.save_to}/{file_name}.{self.file_extension}")  
     def save(self,obj,file_name):
       return torch.save(obj,f"{self.save_to}/{file_name}.{self.file_extension}")
     def __getitem__(self,index):    
-      if index not in self.saved:
-        i=self.df.iloc[index]["file_name"]
-        self.saved[index]=i
-        self.save(super().__getitem__(index)[0],i)
-        if self.del_orig_after_saved:
-          remove(f"{self.file_path}/{i}")
-      else:
-        i=self.saved[index]
+      i=self.df.iloc[index]["file_name"]
+    #fix later
+      #if not self.df.iloc[index]['processed']:
+      #  df.iloc[index, df.columns.get_loc('processed')] = True #avoid chained indexing
+      #  self.save(super().__getitem__(index)[0],i)
+      #  if self.del_orig_after_saved:
+      #     os.remove(f"{self.file_path}/{i}")
       return self.load(i),self.df.iloc[index][self.class_name]
     def loopall(self):#process all images
-        for i in len(self):
+        for i in range(len(self)):
             self[i]
 
 
