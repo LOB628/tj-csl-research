@@ -12,7 +12,7 @@ class getitem_identity:
         pass
     def __getitem__(self,key):
         return key
-def toLabel(element,length=1,convert_category_id=getitem_identity:
+def toLabel(element,length=1,convert_category_id=getitem_identity):
   ret=torch.zeros(length)
   ret[convert_category_id[element]]=1
   return ret  
