@@ -74,12 +74,11 @@ class Images_Dataset_SAVE(Images_Dataset):
       return torch.save(obj,f"{self.save_to}/{file_name}.{self.file_extension}")
     def __getitem__(self,index):    
       i=self.df.iloc[index]["file_name"]
-    #fix later
-      #if not self.df.iloc[index]['processed']:
-      #  df.iloc[index, df.columns.get_loc('processed')] = True #avoid chained indexing
-      #  self.save(super().__getitem__(index)[0],i)
-      #  if self.del_orig_after_saved:
-      #     os.remove(f"{self.file_path}/{i}")
+      if not self.df.iloc[index]['processed']:
+        df.iloc[index, df.columns.get_loc('processed')] = True #avoid chained indexing
+        self.save(super().__getitem__(index)[0],i)
+        if self.del_orig_after_saved:
+           os.remove(f"{self.file_path}/{i}")
       return self.load(i),self.df.iloc[index][self.class_name]
     def loopall(self):#process all images
         for i in range(len(self)):
