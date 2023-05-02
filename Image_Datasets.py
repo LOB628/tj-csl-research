@@ -56,7 +56,6 @@ class Images_Dataset_SAVE(Images_Dataset):
       Uses torch.save and torch.load
       if saved as a pytorch tensor extension should be pt
       """
-      df['processed']=False
       super().__init__(df,file_path=file_path,class_name=class_name,pretensor_transforms_all=pretensor_transforms_all,posttensor_transforms_all=posttensor_transforms_all)
       if save_to is None:
         self.save_to = file_path
@@ -74,8 +73,9 @@ class Images_Dataset_SAVE(Images_Dataset):
       return torch.save(obj,f"{self.save_to}/{file_name}.{self.file_extension}")
     def __getitem__(self,index):    
       i=self.df.iloc[index]["file_name"]
+      
       if not self.df.iloc[index]['processed']:
-        df.iloc[index, df.columns.get_loc('processed')] = True #avoid chained indexing
+        self.df.iloc[index, df.columns.get_loc('processed')] = True #avoid chained indexing
         self.save(super().__getitem__(index)[0],i)
         if self.del_orig_after_saved:
            os.remove(f"{self.file_path}/{i}")
